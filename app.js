@@ -5,7 +5,7 @@ const newsModule = require('news-cms-module');
 const dbConfig = {
     database: 'dummy_news',
     username: 'root',
-    password: '',
+    password: 'A1r1y05<>',
     host: 'localhost',
 };
 
