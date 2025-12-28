@@ -1,6 +1,7 @@
 const express = require('express');
 require('dotenv').config();
 const newsModule = require('news-cms-module');
+const mysql2 = require('mysql2');
 
 const app = express();
 
