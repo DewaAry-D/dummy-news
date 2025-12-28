@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+        <%= news.title %> - DeNews
+    </title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <!-- CSS Styles -->
+    <link rel="stylesheet" href="/berita/style.css" />
+</head>
+
+<body>
+    <!-- Public Header -->
+    <nav class="navbar">
+        <i class="fa-solid fa-bars" id="menu-icon"></i>
+        <!-- Logo -->
+        <div class="logo">
+            <a href="/berita/list"><img src="/berita/img/logo.png" alt="Logo DeNews" /></a>
+        </div>
+
+        <!-- Menu Navbar -->
+        <ul class="menu">
+            <li>
+                <a href="/berita/list" class="<%= !query.category ? 'active' : '' %>">Beranda</a>
+            </li>
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle <%= (news && news.category) || query.category ? 'active' : '' %>">
+                    Kategori <i class="fa-solid fa-chevron-down"></i>
+                </a>
+                <ul class="dropdown-menu">
+                    <% categories.forEach(cat=> { %>
+                        <li>
+                            <a href="/berita/list?category=<%= cat %>"
+                                class="<%= (news && news.category === cat) || query.category === cat ? 'dropdown-active' : '' %>">
+                                <%= cat.charAt(0).toUpperCase() + cat.slice(1) %>
+                            </a>
+                        </li>
+                        <% }); %>
+                </ul>
+            </li>
+        </ul>
+
+        <!-- Search and Login -->
+        <div class="search-login">
+            <!-- Search Bar -->
+            <div class="search-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <div class="input-box">
+                    <input type="text" placeholder="Search..." />
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="breadcrumb" style="margin-bottom: 20px; color: #666; font-size: 14px;">
+            <a href="/berita/list" style="color: #666; text-decoration: none;">Beranda</a> >
+            <a href="/berita/list?category=<%= news.category %>"
+                style="color: var(--primary); text-decoration: none; font-weight: 600;">
+                <%= news.category %>
+            </a>
+        </div>
+
+        <div class="news-layout">
+            <!-- Main Article Content -->
+            <article class="main-article-content">
+                <!-- Hero Image -->
+                <% if (news.imagePath) { %>
+                    <img src="<%= news.imagePath.replace('public/', '/berita/') %>" alt="<%= news.title %>"
+                        class="detail-image" style="margin-top: 0; max-height: 400px; object-fit: cover; width: 100%;">
+                    <% } %>
+
+                        <header class="detail-header">
+                            <h1 class="detail-title" style="font-size: 32px; margin: 20px 0;">
+                                <%= news.title %>
+                            </h1>
+                            <div class="detail-meta">
+                                <span style="display: flex; align-items: center; gap: 5px">
+                                    <i class="fa-solid fa-user-circle"></i>
+                                    Oleh: <%= news.authorName %>
+                                </span>
+                                <span>|</span>
+                                <span>
+                                    <%= new Date(news.createdAt).toLocaleDateString('id-ID', { day: 'numeric' ,
+                                        month: 'long' , year: 'numeric' }) %>
+                                </span>
+                                <span>|</span>
+                                <span>Kategori: <%= news.category %></span>
+                            </div>
+                        </header>
+
+                        <div class="detail-content">
+                            <% if (news.contentBlocks && news.contentBlocks.length> 0) { %>
+                                <% news.contentBlocks.forEach(function(block) { %>
+                                    <% if (block.blockType==='PARAGRAPH' ) { %>
+                                        <p>
+                                            <%= block.contentValue %>
+                                        </p>
+                                        <% } else if (block.blockType==='SUBHEADING' ) { %>
+                                            <h2
+                                                style="font-size: 24px; font-weight: bold; margin-top: 30px; margin-bottom: 15px;">
+                                                <%= block.contentValue %>
+                                            </h2>
+                                            <% } else if (block.blockType==='IMAGE' ) { %>
+                                                <figure style="margin: 30px 0;">
+                                                    <img src="<%= block.contentValue.replace('public/', '/berita/') %>"
+                                                        class="detail-image"
+                                                        alt="<%= block.caption || 'Gambar Berita' %>"
+                                                        style="width: 100%; border-radius: 8px;">
+                                                    <% if (block.caption) { %>
+                                                        <figcaption class="caption"
+                                                            style="text-align: center; margin-top: 10px; color: #666; font-size: 0.9em;">
+                                                            <%= block.caption %>
+                                                        </figcaption>
+                                                        <% } %>
+                                                </figure>
+                                                <% } else if (block.blockType==='VIDEO' ) { %>
+                                                    <div class="video-container" style="margin: 30px 0;">
+                                                        <iframe width="100%" height="400"
+                                                            src="<%= block.contentValue %>" frameborder="0"
+                                                            allowfullscreen style="border-radius: 8px;"></iframe>
+                                                        <% if (block.caption) { %>
+                                                            <p class="caption"
+                                                                style="text-align: center; margin-top: 10px; color: #666; font-size: 0.9em;">
+                                                                <%= block.caption %>
+                                                            </p>
+                                                            <% } %>
+                                                    </div>
+                                                    <% } %>
+                                                        <% }); %>
+                                                            <% } else { %>
+                                                                <p>Konten berita tidak tersedia.</p>
+                                                                <% } %>
+                        </div>
+            </article>
+
+            <!-- Sidebar -->
+            <aside>
+                <div class="sidebar-section">
+                    <h2 class="section-title">Berita Lainnya</h2>
+                    <div class="sidebar-list">
+                        <% if (recommendation && recommendation.length> 0) { %>
+                            <% recommendation.forEach(function(item) { %>
+                                <a href="/berita/post/<%= item.slug %>" class="mini-card">
+                                    <img src="<%= item.imagePath ? item.imagePath.replace('public/', '/berita/') : '/berita/img/berita.png' %>"
+                                        class="mini-thumb" alt="<%= item.title %>"
+                                        onerror="this.src='/berita/img/berita.png'">
+                                    <div class="mini-content">
+                                        <h4 class="mini-title">
+                                            <%= item.title %>
+                                        </h4>
+                                        <p class="news-meta">
+                                            <%= new Date(item.createdAt).toLocaleDateString('id-ID', { day: 'numeric' ,
+                                                month: 'short' }) %>
+                                        </p>
+                                    </div>
+                                </a>
+                                <% }); %>
+                                    <% } else { %>
+                                        <p style="color: #888; font-style: italic;">Belum ada berita rekomendasi.</p>
+                                        <% } %>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <img src="/berita/img/logo.png" alt="DeNews Logo" class="logo" />
+                    </div>
+                    <p class="footer-desc">
+                        DeNews adalah platform berita digital yang menyajikan informasi
+                        akurat, cepat, dan terpercaya.
+                    </p>
+                </div>
+
+                <div class="footer-links">
+                    <h3 class="footer-heading">Browse by Category</h3>
+                    <ul class="category-grid">
+                        <li><a href="/berita/list?category=Nasional">Nasional</a></li>
+                        <li><a href="/berita/list?category=Teknologi">Teknologi</a></li>
+                        <li><a href="/berita/list?category=Pendidikan">Pendidikan</a></li>
+                        <li><a href="/berita/list?category=Internasional">Internasional</a></li>
+                        <li><a href="/berita/list?category=Hiburan">Hiburan</a></li>
+                        <li><a href="/berita/list?category=Kesehatan">Kesehatan</a></li>
+                        <li><a href="/berita/list?category=Olahraga">Olahraga</a></li>
+                        <li><a href="/berita/list?category=Bisnis">Bisnis</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-social">
+                    <h3 class="footer-heading text-white">Follow Us</h3>
+                    <div class="social-icons">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-square"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter-square"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram-square"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="footer-divider" />
+
+            <div class="footer-bottom">
+                <div class="copyright">
+                    &copy; 2025 DeNews. Semua hak cipta dilindungi undang-undang.
+                </div>
+                <div class="legal-links">
+                    <a href="#">Redaksi</a>
+                    <span class="separator">|</span>
+                    <a href="#">Pedoman Media Siber</a>
+                    <span class="separator">|</span>
+                    <a href="#">Kebijakan Privasi</a>
+                    <span class="separator">|</span>
+                    <a href="#">Disclaimer</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Javascript -->
+    <script src="/berita/js/script.js"></script>
+</body>
+
+</html>

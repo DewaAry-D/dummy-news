@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manajemen Berita - DeNews</title>
+    <link rel="stylesheet" href="/berita/style.css" />
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="logo">
+            <a href="./dashboard" style="display: flex; justify-content: center;">
+                <img src="/berita/img/logo.png" alt="Logo DeNews" />
+            </a>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="./dashboard" class="nav-link">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="./list" class="nav-link active">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="3" y1="9" x2="21" y2="9"></line>
+                        <line x1="9" y1="21" x2="9" y2="9"></line>
+                    </svg>
+                    Manajemen Berita
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="toolbar">
+            <div class="filter-group filter-dropdown">
+                <button class="btn btn-primary btn-filter" onclick="toggleFilterMenu(event)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                    </svg>
+                    Filter
+                </button>
+                <div class="filter-menu" id="filterMenu" onclick="event.stopPropagation()">
+                    <form action="" method="GET" id="filterForm">
+                        <% if (query.title) { %>
+                            <input type="hidden" name="title" value="<%= query.title %>">
+                            <% } %>
+                                <div class="filter-section">
+                                    <div class="filter-header">Kategori</div>
+                                    <div class="filter-options">
+                                        <% categories.forEach(cat=> { %>
+                                            <label class="filter-label">
+                                                <input type="radio" name="category" value="<%= cat %>"
+                                                    <%=query.category===cat ? 'checked' : '' %>>
+                                                <%= cat.charAt(0).toUpperCase() + cat.slice(1) %>
+                                            </label>
+                                            <% }); %>
+                                                <label class="filter-label">
+                                                    <input type="radio" name="category" value="" <%=!query.category
+                                                        ? 'checked' : '' %>> Semua
+                                                </label>
+                                    </div>
+                                </div>
+                                <div class="filter-section">
+                                    <div class="filter-header">Status</div>
+                                    <div class="filter-options">
+                                        <label class="filter-label"><input type="radio" name="status" value="PUBLISHED"
+                                                <%=query.status==='PUBLISHED' ? 'checked' : '' %>> Published</label>
+                                        <label class="filter-label"><input type="radio" name="status" value="DRAFT"
+                                                <%=query.status==='DRAFT' ? 'checked' : '' %>> Draft</label>
+                                        <label class="filter-label"><input type="radio" name="status" value="ARCHIVED"
+                                                <%=query.status==='ARCHIVED' ? 'checked' : '' %>> Archived</label>
+                                        <label class="filter-label"><input type="radio" name="status" value=""
+                                                <%=!query.status ? 'checked' : '' %>> Semua</label>
+                                    </div>
+                                </div>
+                                <div style="margin-top: 15px; display: flex; justify-content: flex-end; gap: 8px;">
+                                    <a href="?" class="btn btn-outline"
+                                        style="padding: 5px 10px; font-size: 12px; text-decoration: none; color: #666; border: 1px solid #ccc; border-radius: 4px;">Reset</a>
+                                    <button type="submit" class="btn btn-primary"
+                                        style="padding: 5px 10px; font-size: 12px;">Terapkan</button>
+                                </div>
+                    </form>
+                </div>
+            </div>
+
+            <form class="search-box" action="" method="GET">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" class="search-input" name="title" placeholder="Telusuri Judul..."
+                    value="<%= query.title %>" />
+                <% if (query.category) { %><input type="hidden" name="category" value="<%= query.category %>">
+                    <% } %>
+                        <% if (query.status) { %><input type="hidden" name="status" value="<%= query.status %>">
+                            <% } %>
+                                <button type="submit" class="btn btn-primary"
+                                    style="padding: 5px 15px; margin-right: 5px">
+                                    Cari
+                                </button>
+            </form>
+
+            <a href="create" class="btn btn-primary"
+                style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 18px; font-weight: bold;">+</span> Tambah Berita
+            </a>
+        </div>
+
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="col-title">Judul Berita</th>
+                        <th class="col-author">Nama Author</th>
+                        <th class="col-category">Kategori</th>
+                        <th class="col-status">Status</th>
+                        <th class="col-actions">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (posts && posts.length> 0) { %>
+                        <% posts.forEach(post=> { %>
+                            <tr>
+                                <td class="col-title">
+                                    <span class="truncate" title="<%= post.title %>">
+                                        <%= post.title %>
+                                    </span>
+                                </td>
+                                <td class="col-author">
+                                    <%= post.authorName %>
+                                </td>
+                                <td class="col-category" style="text-transform: capitalize;">
+                                    <%= post.category %>
+                                </td>
+                                <td class="col-status">
+                                    <div class="dropdown">
+                                        <button class="badge badge-<%= post.status.toLowerCase() %> dropdown-toggle"
+                                            type="button" onclick="toggleDropdown(this)">
+                                            <%= post.status %>
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <div class="dropdown-item"
+                                                onclick="updateNewsStatus('<%= post.id %>', 'PUBLISHED')">
+                                                <span class="status-dot published"></span> Publish
+                                            </div>
+                                            <div class="dropdown-item"
+                                                onclick="updateNewsStatus('<%= post.id %>', 'DRAFT')">
+                                                <span class="status-dot draft"></span> Draft
+                                            </div>
+                                            <div class="dropdown-item"
+                                                onclick="updateNewsStatus('<%= post.id %>', 'ARCHIVED')">
+                                                <span class="status-dot archived"></span> Archived
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="<%= post.slug %>" class="btn-icon text-blue" title="Lihat">👁️</a>
+                                        <a href="update/<%= post.slug %>" class="btn-icon text-orange" title="Edit">✏️</a>
+                                        <button class="btn-icon text-red" title="Hapus"
+                                            onclick="deletePost('<%= post.id %>')">🗑️</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="5" style="text-align: center; padding: 30px; color: #888;">Belum
+                                            ada berita yang tersedia.</td>
+                                    </tr>
+                                    <% } %>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination">
+            <% if (pagination.hasPrevPage) { %>
+                <a href="?page=<%= pagination.currentPage - 1 %>&title=<%= query.title %>&category=<%= query.category %>&status=<%= query.status %>"
+                    class="page-item" style="text-decoration: none; color: inherit;">&lt;</a>
+                <% } %>
+
+                    <% for (let i=1; i <=pagination.totalPages; i++) { %>
+                        <a href="?page=<%= i %>&title=<%= query.title %>&category=<%= query.category %>&status=<%= query.status %>"
+                            class="page-item <%= pagination.currentPage === i ? 'active' : '' %>"
+                            style="text-decoration: none;">
+                            <%= i %>
+                        </a>
+                        <% } %>
+
+                            <% if (pagination.hasNextPage) { %>
+                                <a href="?page=<%= pagination.currentPage + 1 %>&title=<%= query.title %>&category=<%= query.category %>&status=<%= query.status %>"
+                                    class="page-item" style="text-decoration: none; color: inherit;">&gt;</a>
+                                <% } %>
+        </div>
+    </main>
+
+    <script>
+
+        // Close dropdowns when clicking outside
+        window.onclick = function (event) {
+            if (!event.target.closest('.dropdown')) {
+                var dropdowns = document.getElementsByClassName("dropdown-menu");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+
+        function toggleDropdown(button) {
+            // Close all other dropdowns first
+            var dropdowns = document.getElementsByClassName("dropdown-menu");
+            for (var i = 0; i < dropdowns.length; i++) {
+                if (dropdowns[i] !== button.nextElementSibling) {
+                    dropdowns[i].classList.remove('show');
+                }
+            }
+            // Toggle the clicked one
+            button.nextElementSibling.classList.toggle("show");
+        }
+
+        async function updateNewsStatus(id, newStatus) {
+            if (!confirm(`Ubah status menjadi ${newStatus}?`)) return;
+
+            try {
+                const response = await fetch(`update/${id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert('Gagal memperbarui status: ' + result.error);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Terjadi kesalahan saat memperbarui status.');
+            }
+        }
+
+        // async function deleteNews(id) {
+        //     if (!confirm('Apakah Anda yakin ingin menghapus berita ini? Tindakan ini tidak dapat dibatalkan.')) return;
+
+        //     try {
+        //         const response = await fetch(`/berita/admin/delete/${id}`, {
+        //             method: 'DELETE'
+        //         });
+
+        //         const result = await response.json();
+        //         if (result.success) {
+        //             location.reload();
+        //         } else {
+        //             alert('Gagal menghapus berita: ' + result.message || result.error);
+        //         }
+        //     } catch (error) {
+        //         console.error(error);
+        //         alert('Terjadi kesalahan saat menghapus berita.');
+        //     }
+        // }
+
+        // Filter Logic
+        function toggleFilterMenu(e) {
+            const menu = document.getElementById('filterMenu');
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+            e.stopPropagation();
+        }
+
+        // Close Filter Menu when clicking outside
+        window.addEventListener('click', function (e) {
+            const filterMenu = document.getElementById('filterMenu');
+            if (filterMenu && !e.target.closest('.filter-dropdown')) {
+                filterMenu.style.display = 'none';
+            }
+        });
+
+        async function deletePost(id) {
+            // 1. Konfirmasi ke user
+            if (!confirm('Apakah Anda yakin ingin menghapus berita ini?')) {
+                return;
+            }
+
+            try {
+                // 2. Kirim permintaan hapus ke backend
+                const response = await fetch(`delete/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                // Cek jika response bukan JSON (menghindari error Unexpected Token <)
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new Error("Server mengirim respon yang salah (bukan JSON)");
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Berhasil: ' + result.message);
+                    // 3. Refresh halaman agar data yang dihapus hilang dari tabel
+                    window.location.reload();
+                } else {
+                    alert('Gagal: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan: ' + error.message);
+            }
+        }    
+    </script>
+</body>
+
+</html>
