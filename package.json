@@ -14,7 +14,7 @@
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "mysql2": "^3.15.2",
-    "news-cms-module": "^0.1.2",
+    "news-cms-module": "^1.1.0",
     "sequelize": "^6.37.7"
   }
 }

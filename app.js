@@ -4,14 +4,6 @@ const newsModule = require('news-cms-module');
 
 const app = express();
 
-// Konfigurasi Database dari .env
-// const dbConfig = {
-//     database: process.env.DB_NAME,
-//     username: process.env.DB_USER_NAME,
-//     password: process.env.DB_PASSWORD,
-//     host: process.env.DB_HOST,
-// };
-
 const dbConfig = {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT || 3036, // Sesuaikan dengan port db anda
